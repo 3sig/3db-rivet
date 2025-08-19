@@ -11,7 +11,7 @@
                 name: "template",
                 path: "3db/template.js",
                 config: {
-                    hello: "world"
+                    filename: "test.rivet-project"
                 }
             }
         ]
@@ -26,6 +26,17 @@
         sourceExclude: true,
         sourceActions: [
           { type: "move", location: "./3db", filename: "template.js" }
+        ],
+    },
+    {
+        name: "test-rivet",
+        sourceType: "local",
+        localPath: "./",
+        sourceFileType: "pattern-match",
+        sourceFilePattern: "test.rivet-project",
+        sourceExclude: true,
+        sourceActions: [
+          { type: "move", location: "./" }
         ],
     },
   ]

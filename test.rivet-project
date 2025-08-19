@@ -1,0 +1,39 @@
+version: 4
+data:
+  attachedData:
+    trivet:
+      testSuites: []
+      version: 1
+  graphs:
+    XR7wFQHZ2wKjTlIjrwv-G:
+      metadata:
+        description: ""
+        id: XR7wFQHZ2wKjTlIjrwv-G
+        name: test
+      nodes:
+        '[35WQJzCMbYy6LYoFTJ16z]:graphInput "Graph Input"':
+          data:
+            dataType: string
+            id: input
+            useDefaultValueInput: false
+          outgoingConnections:
+            - data->"Text" GP9Td1XSR3UghO7ArBzTg/input
+          visualData: -138/493/330/4//
+        '[GP9Td1XSR3UghO7ArBzTg]:text "Text"':
+          data:
+            normalizeLineEndings: true
+            text: hi {{input}}
+          outgoingConnections:
+            - output->"Graph Output" IqmpShpG3uYZOjj01T1FN/value
+          visualData: 54/266/330/3//
+        '[IqmpShpG3uYZOjj01T1FN]:graphOutput "Graph Output"':
+          data:
+            dataType: string
+            id: output
+          visualData: 539/336/330/null//
+  metadata:
+    description: ""
+    id: X9Jw-0fqHCL13tXGccx9R
+    title: test
+  plugins: []
+  references: []
