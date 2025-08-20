@@ -8,12 +8,11 @@
       config: {
         plugins: [
             {
-                // update naming for your plugin here
-                name: "template",
-                path: "3db/template.js",
-
-                // insert configuration for your plugin here
+                name: "rivet",
+                path: "3db/rivet.js",
+                // configure rivet plugin here
                 config: {
+                    // choose the rivet project with filename. this is required for functionality
                     filename: "test.rivet-project"
                 }
             }
@@ -22,7 +21,7 @@
     },
     {
         // update naming for your plugin here
-        name: "template",
+        name: "rivet",
         sourceType: "local",
         localPath: "./build",
         sourceFileType: "pattern-match",
@@ -30,7 +29,7 @@
         sourceExclude: true,
         sourceActions: [
         // update naming for your plugin here
-          { type: "move", location: "./3db", filename: "template.js" }
+          { type: "move", location: "./3db", filename: "rivet.js" }
         ],
     },
     {

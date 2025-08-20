@@ -1,29 +1,26 @@
-# 3suite
+# 3db-socketio
 
-this repository serves as a template for 3suite-db plugins. as of writing, it includes:
+a 3db plugin to allow running rivet workflows within 3db.
 
-- 3lib-orchestrator setup to test the plugin
-- workflow actions for automated building and releasing via tags
+see [3suite-db](https://github.com/3sig/3suite-db) for more information, including installation instructions.
 
-see [3suite-db](https://github.com/3sig/3suite-db) for more information.
+## why 3db? why rivet?
+
+AI can be difficult to integrate into creative tools, like touchdesigner and unity. 3db's plugin system lets you choose a transport mechanism to use.
+
+rivet's flexibility shines through with its graph input/output systems, which can cleanly integrate with 3db's key/value store.
 
 ## usage
 
-### getting started
+see `orchestrator.json5` for annotated configuration details.
 
-- fork the repository, either through github or with gh `gh repo fork 3sig/3suite-db-plugin-template`
-- change the `package.json` file to reflect your plugin's name
-- update `orchestrator.json5` to reflect your plugin's name
+3db-rivet exposes a single api for interacting with rivet projects.
 
-### development
+`rivet/runGraph` takes one parameter, the name of the graph to run. inputs are read from the 3db database, and outputs are written directly to the database. the keys are controlled by the name of the input nodes and the output nodes.
 
-use `npm run start` or `bun run start` to run 3suite-db with this plugin.
+the `test.rivet-project` file in this repo is an example of a project that reads from the "input" field in the database and writes to the "output" field. multiple inputs and outputs can be used.
 
-### creating a new project
-
-fork the repository--any changes that we make to the build workflows should be merged upstream to this template.
-
-enable workflows in github so that the build workflows can run.
+## development
 
 ### creating a release
 
