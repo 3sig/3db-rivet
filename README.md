@@ -9,6 +9,16 @@ see [3suite-db](https://github.com/3sig/3suite-db) for more information.
 
 ## usage
 
+### getting started
+
+- fork the repository, either through github or with gh `gh repo fork 3sig/3suite-db-plugin-template`
+- change the `package.json` file to reflect your plugin's name
+- update `orchestrator.json5` to reflect your plugin's name
+
+### development
+
+use `npm run start` or `bun run start` to run 3suite-db with this plugin.
+
 ### creating a new project
 
 fork the repository--any changes that we make to the build workflows should be merged upstream to this template.
