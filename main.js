@@ -12,15 +12,12 @@ export {
 async function onInitialize(config, runApi) {
   function updateRivetProject() {
     try {
+      console.log(`[rivet] Loading Rivet project from: ${config.filename}`);
       let fileContents = fs.readFileSync(config.filename, "utf8");
       rivetProject = Rivet.loadProjectFromString(fileContents);
+      console.log(`[rivet] Rivet project reloaded successfully`);
     } catch (error) {
-      console.error(
-        "Error loading Rivet project:",
-        config.filename,
-        "error: ",
-        error,
-      );
+      console.error(`[rivet] Error loading Rivet project from ${config.filename}:`, error);
     }
   }
   let watcher = chokidar.watch(config.filename, {
@@ -28,7 +25,10 @@ async function onInitialize(config, runApi) {
     persistent: false,
     atomic: true,
   });
-  watcher.on("change", updateRivetProject);
+  watcher.on("change", () => {
+    console.log(`[rivet] Rivet file changed, reloading...`);
+    updateRivetProject();
+  });
   updateRivetProject();
 }
 
@@ -66,24 +66,35 @@ function _getGraphData(rivetProject) {
 }
 
 async function runGraph(config, runApi, graph) {
+  console.log(`[rivet] Running graph: ${graph}`);
+  
   let graphData = _getGraphData(rivetProject);
-
   let gd = graphData[graph];
+  
+  if (!gd) {
+    console.error(`[rivet] Graph '${graph}' not found in project`);
+    return {};
+  }
+  
   let inputMap = {};
 
-  // collect inputs
   for (let input of Object.keys(gd.inputs)) {
+    if (config.verbose) {
+      console.log(`[rivet] [verbose] Fetching input '${input}' via core/get API`);
+    }
     inputMap[input] = await runApi("core/get", input);
+    if (config.verbose) {
+      console.log(`[rivet] [verbose] Input '${input}' value:`, inputMap[input]);
+    }
   }
 
-  // fill in missing inputs
   for (let input of Object.keys(gd.inputs)) {
     if (
       inputMap[input] == undefined ||
       inputMap[input] == null
     ) {
-      inputMap[input] == "";
-      console.log(`Missing input: ${input}`);
+      inputMap[input] = "";
+      console.log(`[rivet] Missing input '${input}', using empty string`);
     }
   }
 
@@ -94,12 +105,15 @@ async function runGraph(config, runApi, graph) {
     }
 
     inputMap[input] = {
-      type:type,
+      type: type,
       value: inputMap[input]
     }
   }
 
-  // run the graph
+  if (config.verbose) {
+    console.log(`[rivet] [verbose] Calling Rivet processor for graph '${graph}' with inputs:`, Object.keys(inputMap));
+  }
+  
   let rivetProcessor = Rivet.coreCreateProcessor(rivetProject, {
     graph: graph,
     inputs: inputMap,
@@ -108,29 +122,42 @@ async function runGraph(config, runApi, graph) {
   });
 
   let result = await rivetProcessor.run();
+  
+  if (config.verbose) {
+    console.log(`[rivet] [verbose] Graph '${graph}' execution completed, processing outputs:`, Object.keys(result));
+  }
 
   let outputMap = {};
   for (let key in result) {
     if (key.startsWith("json")) {
-      console.log("graphLogic.js JSON PARSE HIT");
+      if (config.verbose) {
+        console.log(`[rivet] [verbose] Processing JSON output for key: ${key}`);
+      }
       try {
         let resultJsonString = result.json.value;
         let resultJson = JSON.parse(resultJsonString);
         outputMap = { ...outputMap, ...resultJson };
+        if (config.verbose) {
+          console.log(`[rivet] [verbose] JSON parsed successfully:`, Object.keys(resultJson));
+        }
       } catch (e) {
-        console.error("Error parsing result json: ", e);
+        console.error(`[rivet] Error parsing JSON result for key '${key}':`, e);
       }
     } else if (key != "cost") {
-      // filter out rivet reporting the cost of the query
       outputMap[key] = result[key].value;
     }
   }
 
   if (outputMap) {
     for (let output in outputMap) {
-      await runApi("core/update", output, outputMap[output])
+      if (config.verbose) {
+        console.log(`[rivet] [verbose] Updating '${output}' via core/update API with value:`, outputMap[output]);
+      }
+      await runApi("core/update", output, outputMap[output]);
     }
   }
+  
+  console.log(`[rivet] Graph '${graph}' completed with outputs:`, Object.keys(outputMap));
 
   return outputMap;
 }
