@@ -67,24 +67,24 @@ function _getGraphData(rivetProject) {
 
 async function runGraph(config, runApi, graph) {
   console.log(`[rivet] Running graph: ${graph}`);
-  
+
   let graphData = _getGraphData(rivetProject);
   let gd = graphData[graph];
-  
+
   if (!gd) {
     console.error(`[rivet] Graph '${graph}' not found in project`);
     return {};
   }
-  
+
   let inputMap = {};
 
   for (let input of Object.keys(gd.inputs)) {
     if (config.verbose) {
-      console.log(`[rivet] [verbose] Fetching input '${input}' via core/get API`);
+      console.log(`[rivet] Fetching input '${input}' via core/get API`);
     }
     inputMap[input] = await runApi("core/get", input);
     if (config.verbose) {
-      console.log(`[rivet] [verbose] Input '${input}' value:`, inputMap[input]);
+      console.log(`[rivet] Input '${input}' value:`, inputMap[input]);
     }
   }
 
@@ -111,9 +111,9 @@ async function runGraph(config, runApi, graph) {
   }
 
   if (config.verbose) {
-    console.log(`[rivet] [verbose] Calling Rivet processor for graph '${graph}' with inputs:`, Object.keys(inputMap));
+    console.log(`[rivet] Calling Rivet processor for graph '${graph}' with inputs:`, Object.keys(inputMap));
   }
-  
+
   let rivetProcessor = Rivet.coreCreateProcessor(rivetProject, {
     graph: graph,
     inputs: inputMap,
@@ -122,23 +122,23 @@ async function runGraph(config, runApi, graph) {
   });
 
   let result = await rivetProcessor.run();
-  
+
   if (config.verbose) {
-    console.log(`[rivet] [verbose] Graph '${graph}' execution completed, processing outputs:`, Object.keys(result));
+    console.log(`[rivet] Graph '${graph}' execution completed, processing outputs:`, Object.keys(result));
   }
 
   let outputMap = {};
   for (let key in result) {
     if (key.startsWith("json")) {
       if (config.verbose) {
-        console.log(`[rivet] [verbose] Processing JSON output for key: ${key}`);
+        console.log(`[rivet] Processing JSON output for key: ${key}`);
       }
       try {
         let resultJsonString = result.json.value;
         let resultJson = JSON.parse(resultJsonString);
         outputMap = { ...outputMap, ...resultJson };
         if (config.verbose) {
-          console.log(`[rivet] [verbose] JSON parsed successfully:`, Object.keys(resultJson));
+          console.log(`[rivet] JSON parsed successfully:`, Object.keys(resultJson));
         }
       } catch (e) {
         console.error(`[rivet] Error parsing JSON result for key '${key}':`, e);
@@ -151,12 +151,12 @@ async function runGraph(config, runApi, graph) {
   if (outputMap) {
     for (let output in outputMap) {
       if (config.verbose) {
-        console.log(`[rivet] [verbose] Updating '${output}' via core/update API with value:`, outputMap[output]);
+        console.log(`[rivet] Updating '${output}' via core/update API with value:`, outputMap[output]);
       }
       await runApi("core/update", output, outputMap[output]);
     }
   }
-  
+
   console.log(`[rivet] Graph '${graph}' completed with outputs:`, Object.keys(outputMap));
 
   return outputMap;
